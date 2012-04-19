@@ -1,0 +1,12 @@
+#!mast .ruby .yardopts bin lib spec test [A-Z]*.*
+.ruby
+.yardopts
+bin/shomen-rdoc
+lib/shomen-rdoc/adapter.rb
+lib/shomen-rdoc/command.rb
+lib/shomen-rdoc/rdoc.rb
+lib/shomen-rdoc.rb
+lib/shomen-rdoc.yml
+HISTORY.rdoc
+LICENSE.txt
+README.rdoc

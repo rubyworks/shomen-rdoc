@@ -1,0 +1,3 @@
+Shomen RDoc provides a command line utility for generating Shomen standard
+documentation via the RDoc's `.rdoc` cache. It is an alternative to the
+`rdoc-shomen` format plugin.

@@ -1,0 +1,6 @@
+= Shomen RDoc
+
+The Shomen RDoc utility is a utility to generate Shomen standard documentation 
+via RDoc's documentation cache (usually stored in `.rdoc`). This is an aternative
+to using the rdoc-shomen format, which is an RDoc plugin rather then a stand alone
+tool.
