@@ -2,10 +2,12 @@
 
 module Shomen
 
-  require 'shomen/metadata'
-  require 'shomen/model'
+  require 'shomen/generator'
 
   module Rdoc
+
+    # TODO: what about reading options from .document ?
+    #       also rdoc.options[:document] ?
 
     # This adapter is used to convert RDoc's documentation extracted
     # from a local store (`.rdoc`) to Shomen's pure-data format.
@@ -24,16 +26,15 @@ module Shomen
     # using the traditional `rdoc-shomen` generator instead until these issues
     # are resolved.
     #
-    class Adaptor
+    class Generator < Shomen::Generator
 
       # Initialize new RDoc adaptor.
       def initialize(options)
         initialize_rdoc
 
-        @store  = options[:store] || '.rdoc'
-        @files  = options[:files] || ['README*']  #['lib', 'README*']
-        @webcvs = options[:webcvs]
-        @source = options[:source]
+        @store = '.rdoc'
+
+        super(options)
       end
 
       # Load RDoc library. Must be RDoc v3 or greater. We invoke the `gem` method
@@ -43,51 +44,89 @@ module Shomen
       # Returns nothing.
       def initialize_rdoc
         gem 'rdoc', '>3'  # rescue nil
-
         require 'rdoc'
-        #require 'rdoc/ri'
-        #require 'rdoc/markup'
-        require 'shomen/rdoc/extensions'
+        require 'shomen-rdoc/rdoc'
+      end
+
+      # Location to of RDoc documentation cache. This defaults to `.rdoc` which is
+      # where RDoc normally places it's generated documentation files.
+      #
+      # Returns String path to RDoc documentation cache.
+      attr_accessor :store
+
+      # Use pre-existant cache instead of regenerating documentation.
+      attr_accessor :use_cache
+
+      # Use pre-existant cache instead of regenerating documentation.
+      #
+      # Returns true/false.
+      def use_cache?
+        @use_cache
+      end
+
+      # Files to be documented.
+      #
+      # Returns Array of file paths.
+      def files
+        @files ||= (
+          list = []
+          list.concat scripts
+          list.concat documents
+          list.concat(['README*']) if list.empty?   #['lib', 'README*'] ?
+          list
+        )
+      end
+
+      # Generate with RDoc as backend processor.
+      #
+      # Returns documentation table. [Hash]
+      def generate
+        preconfigure unless use_cache?
+        generate_table
       end
 
       # The hash object that is used to store the generated 
       # documentation.
       #
       # Returns documentation table. [Hash]
-      attr :table
-
-      # Location to of RDoc documentation cache. This defaults to `.rdoc` which is
-      # where RDoc normally places it's generated documentation files.
-      #
-      # Returns String path to RDoc documentation cache.
-      attr :store
-
-      # Files to be documented.
-      #
-      # Returns Array of file paths.
-      attr :files
-
-      # URI prefix which can be used to link to online documentation.
-      #
-      # Returns String.
-      attr :webcvs
-
-      # Include source code in scripts?
-      #
-      # Returns true/false.
-      attr :source
-
-      # Include source code in scripts?
-      #
-      # Returns true/false.
-      def source?
-        @soruce
+      def table
+        @table
       end
 
-      # Generate the shomen data structure.
+    private
+
+      # Produce RDoc cache.
       #
-      # Returns Hash of documentation table.
-      def generate
+      # Returns nothing.
+      def preconfigure
+        argv = []
+        argv.concat ["-q"]
+        argv.concat ["-r"]
+        argv.concat ["-o", store]
+        argv.concat ["--markup", markup] if markup
+        argv.concat ["-D"] if $DEBUG
+        #argv.concat ["--write-options"] #if save
+        argv.concat scripts
+        #argv.concat ['-', *documents] unless documents.empty?
+
+        rdoc = ::RDoc::RDoc.new
+        $stderr.puts('rdoc ' + argv.join(' ')) if $DEBUG
+        rdoc.document(argv)
+      end
+
+      # Generate documentation table from RDoc.
+      #
+      # Returns documentation table. [Hash]
+      def generate_table
+        #options = {}
+        #options[:files]  = documents # + scripts
+        #options[:store]  = store
+        #options[:webcvs] = webcvs
+        #options[:source] = source
+
+        #rdoc = Shomen::RDocAdaptor.new(options)
+        #rdoc.generate
+
         if not File.exist?(store)
           $stderr.puts "ERROR: RDoc store not found -- '#{store}`."
           exit -1
@@ -163,20 +202,11 @@ module Shomen
         return @table
       end
 
-    private
-
-      # Project metadata.
-      #
-      # Returns Metadata instance.
-      def project_metadata
-        @project_metadata ||= Shomen::Metadata.new
-      end
-
       # Collect files given list of +globs+.
       #
       # Returns Array of files.
       def collect_files
-        globs = @files
+        globs = self.files
         globs = globs.map{ |glob| Dir[glob] }.flatten.uniq
         globs = globs.map do |glob|
           if File.directory?(glob)

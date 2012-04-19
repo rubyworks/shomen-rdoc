@@ -1,3 +1,5 @@
+require 'rdoc'
+
 class RDoc::TopLevel
   #
   def to_h

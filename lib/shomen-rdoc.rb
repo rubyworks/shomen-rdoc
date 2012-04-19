@@ -16,7 +16,8 @@ module Shomen
   end
 end
 
-require 'shomen-rdoc/rdoc'
-require 'shomen-rdoc/adapter'
+require 'shomen/generator'
+#require 'shomen-rdoc/rdoc'
+require 'shomen-rdoc/generator'
 require 'shomen-rdoc/command'
 

@@ -1,8 +1,5 @@
 module Shomen
 
-  require 'optparse'
-  require 'shomen/generator'
-
   module Rdoc
 
     # TODO: Instead of using command line options for shomen
@@ -16,6 +13,7 @@ module Shomen
     #     $ shomen-rdoc --readme README.md lib - [A-Z]*.*
     #
     class Command
+      require 'optparse'
 
       # Public: Shortcut for `CLI.new(*argv).run`.
       #
@@ -78,13 +76,6 @@ module Shomen
       #
       # Returns nothing.
       def parser_options(parser)
-        #parser.on('-Y', '--yard', 'use YARD for parsing') do
-        #  options[:engine] = :yard
-        #end
-        #parser.on('-R', '--rdoc', 'use RDoc for parsing') do
-        #  options[:engine] = :rdoc
-        #end
-
         parser.on('-j', '--json', 'output JSON instead of YAML (default)') do
           options[:format] = :json
         end

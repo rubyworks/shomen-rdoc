@@ -1,6 +1,6 @@
 .rdoc_options
-.reap/digest
-.yardoc
+.fire/digest
+.rdoc
 doc
 log
 pkg
