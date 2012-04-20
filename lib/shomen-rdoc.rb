@@ -1,4 +1,7 @@
 module Shomen
+
+  # Shomen Rdoc is used to generate Shomen formatted documentation
+  # from RDoc cache.
   #
   module Rdoc
     #
@@ -14,10 +17,10 @@ module Shomen
       metadata[name.to_s.downcase] || super(name)
     end
   end
+
 end
 
-require 'shomen/generator'
-#require 'shomen-rdoc/rdoc'
+require 'shomen-model'
 require 'shomen-rdoc/generator'
 require 'shomen-rdoc/command'
 

@@ -2,11 +2,9 @@
 
 module Shomen
 
-  require 'shomen/generator'
-
   module Rdoc
 
-    # TODO: what about reading options from .document ?
+    # TODO: what about reading options from .document and .rdoc_options ?
     #       also rdoc.options[:document] ?
 
     # This adapter is used to convert RDoc's documentation extracted
@@ -45,7 +43,7 @@ module Shomen
       def initialize_rdoc
         gem 'rdoc', '>3'  # rescue nil
         require 'rdoc'
-        require 'shomen-rdoc/rdoc'
+        require 'shomen-rdoc/rdoc_ext'
       end
 
       # Location to of RDoc documentation cache. This defaults to `.rdoc` which is
@@ -100,17 +98,18 @@ module Shomen
       # Returns nothing.
       def preconfigure
         argv = []
+        argv.concat ["-D"] if $DEBUG
         argv.concat ["-q"]
         argv.concat ["-r"]
         argv.concat ["-o", store]
         argv.concat ["--markup", markup] if markup
-        argv.concat ["-D"] if $DEBUG
         #argv.concat ["--write-options"] #if save
         argv.concat scripts
         #argv.concat ['-', *documents] unless documents.empty?
 
         rdoc = ::RDoc::RDoc.new
         $stderr.puts('rdoc ' + argv.join(' ')) if $DEBUG
+
         rdoc.document(argv)
       end
 
@@ -271,7 +270,7 @@ module Shomen
         model.name             = rdoc_class.name
         model.namespace        = rdoc_class.full_name.split('::')[0...-1].join('::')
         model.includes         = rdoc_class.includes.map{ |x| x.name }  # FIXME: How to "lookup" full name?
-        model.extensions       = []                                     # TODO:  How to get extensions?
+        model.extensions       = []                                     # TODO:  How to get extension modules?
         model.comment          = comment(rdoc_class.comment)
         model.format           = 'rdoc'  # or tomdoc ?
         model.constants        = rdoc_class.constants.map{ |x| complete_name(x.name, rdoc_class.full_name) }

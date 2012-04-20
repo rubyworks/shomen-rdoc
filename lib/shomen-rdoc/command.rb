@@ -52,14 +52,12 @@ module Shomen
       #
       def parse(argv)
         if i = argv.index('-')
-          @documents = argv[i+1..-1]
+          options[:documents] = argv[i+1..-1]
           argv = argv[0...i]
         end
 
         parser = OptionParser.new
-
         parser_options(parser)
-
         parser.parse!(argv)
 
         if !(force? or root?)
@@ -67,7 +65,7 @@ module Shomen
           exit -1
         end
 
-        @scripts = argv
+        options[:scripts] = argv
       end
 
       # Define command line options.
