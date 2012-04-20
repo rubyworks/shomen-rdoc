@@ -427,34 +427,43 @@ module Shomen
         #debug_msg "Generating file documentation in #{path_output_relative}:"
         #templatefile = self.path_template + 'file.rhtml'
 
-        debug_msg "%s" % [rdoc_file.full_name]
+        file = case rdoc_file
+               when String
+                 rdoc_file
+               else
+                 rdoc_file.full_name
+               end
 
-        absolute_path = File.join(path_base, rdoc_file.full_name)
+        debug_msg "%s" % [file]
+
+        absolute_path = File.join(path_base, file)
         #rel_prefix  = self.path_output.relative_path_from(outfile.dirname)
 
         model = Shomen::Model::Script.new
 
-        model.path      = rdoc_file.full_name
-        model.name      = File.basename(rdoc_file.full_name)
+        model.path      = file
+        model.name      = File.basename(file)
         model.mtime     = File.mtime(absolute_path)
 
-        # http://github.com/rubyworks/qed/blob/master/ lib/qed.rb
-
         if source?
-          model.source   = File.read(absolute_path) #file.comment
+          model.source   = File.read(absolute_path)
           model.language = mime_type(absolute_path)
         end
 
         webcvs = project_metadata['webcvs'] || webcvs
         if webcvs
-          model.uri      = File.join(webcvs, model.path)  # TODO: use open-uri ?
+          model.uri      = File.join(webcvs, model.path)
           model.language = mime_type(absolute_path)
         end
 
+        # TODO: what use is rdoc_file.comment ?
         #model.header   =
         #model.footer   =
-        model.requires  = rdoc_file.requires.map{ |r| r.name }
-        model.constants = rdoc_file.constants.map{ |c| c.full_name }
+
+        unless String === rdoc_file
+          model.requires  = rdoc_file.requires.map{ |r| r.name }
+          model.constants = rdoc_file.constants.map{ |c| c.full_name }
+        end
 
         # note that this utilizes the table we are building
         # so it needs to be the last thing done.
@@ -462,16 +471,16 @@ module Shomen
           case h['!']
           when 'module'
             model.modules ||= []
-            model.modules << k if h['files'].include?(rdoc_file.full_name)
+            model.modules << k if h['files'].include?(file)
           when 'class'
             model.classes ||= []
-            model.classes << k if h['files'].include?(rdoc_file.full_name)
+            model.classes << k if h['files'].include?(file)
           when 'method'
             model.methods ||= []
-            model.methods << k if h['file'] == rdoc_file.full_name
+            model.methods << k if h['file'] == file
           when 'class-method'
             model.class_methods ||= []
-            model.class_methods << k if h['file'] == rdoc_file.full_name
+            model.class_methods << k if h['file'] == file
           end
         end
 
