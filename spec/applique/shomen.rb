@@ -1,4 +1,4 @@
-require 'shomen/rdoc'
+require 'shomen-rdoc'
 require 'stringio'
 
 #Before :all do
