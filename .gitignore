@@ -7,3 +7,5 @@ pkg
 tmp
 web
 sample/.rdoc
+man/*.1
+man/*.html
