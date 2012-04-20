@@ -9,11 +9,8 @@ copyrights: []
 requirements:
 - name: rdoc
   version: 3+
+- name: shomen-model
 - name: detroit
-  groups:
-  - build
-  development: true
-- name: fire
   groups:
   - build
   development: true
