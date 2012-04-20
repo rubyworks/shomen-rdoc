@@ -5,6 +5,9 @@
 This is the initial public release of Shomen RDoc, spun-off
 from the main Shomen library.
 
+Please note that this utility is not in the best of shape 
+due to current issues with RDoc itself.
+
 Changes:
 
 * Happy Release Day!
